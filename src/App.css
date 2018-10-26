@@ -31,16 +31,24 @@
   }
 }
 
-.hobbiesTable, .hobbiesTable * {
+.hobbies-table, .hobbies-table * {
   border: 2px solid black;
   margin: 20px auto;
   width: 80%;
 }
 
-.bookList {
+.book-list {
   margin: 10px;
   padding: 10px;
   border: 3px dashed red;
   color: white;
   background-color: blue;
+}
+
+.todo-list {
+  text-align: left;
+}
+
+.reversed-todo-list {
+  text-align: right;
 }
