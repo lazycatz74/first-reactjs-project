@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+const creator = {
+  firstName: 'Alex',
+  lastName: 'Vuong'
+}
+
 const list = [
   {
     title: 'React',
@@ -23,77 +28,96 @@ const list = [
 
 const hobbies = [
   {
-      title: "Swimming",
+      title: 'Swimming',
       rate: 9
   },
   {
-      title: "Playing games",
+      title: 'Playing games',
       rate: 4
   },
   {
-      title: "Watching movies",
+      title: 'Watching movies',
       rate: 7.5
   },
   {
-      title: "Laiding",
+      title: 'Laiding (just kidding)',
       rate: 10
   }
 ]
 
 const todoList = [
   {
-    title: "Learn React",
-    estimateTime: "1 month"
+    title: 'Learn React',
+    estimateTime: '1 month'
   },
   {
-    title: "Go on a trip to Great Ocean Road",
-    estimateTime: "2 days"
+    title: 'Go on a trip to Great Ocean Road',
+    estimateTime: '2 days'
   },
   {
-    title: "Travel to other state, e.g. Tasmania, Canberra & Queensland",
-    estimateTime: "5 - 6 days"
+    title: 'Travel to other state, e.g. Tasmania, Canberra & Queensland',
+    estimateTime: '5 - 6 days'
   }
 ]
 
-function TodoList(props) {
+function TodoList(props, index) {
   const listArray = props.list;
   const listItems = listArray.map(item =>
-    <li>{item.title + ": " + item.estimateTime}</li>
+    <li>{item.title + ': ' + item.estimateTime}</li>
   );
   return (
-    <ul className='todo-list'>
+    <ul className="todo-list">
       {listItems}
     </ul>
   );
 }
 
-const ReversedTodoList = (props) =>
-  <ul className='reversed-todo-list'>
+const ReversedTodoList = (props, index) =>
+  <ul className="reversed-todo-list">
     {
       props.list.slice(0).reverse().map(item =>
-        <li>{item.estimateTime + ": " + item.title}</li>
+        <li>{item.estimateTime + ': ' + item.title}</li>
       )
     }
   </ul>
 
 class App extends Component {
+
+  /*
+  * Pass in the props (input params)
+  * Initiate the state of the App component
+  */
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      appCreator: creator,
+      /*list: list,
+      hobbies: hobbies,
+      todoList: todoList */
+      // ---Using shorthand--->>
+      list,
+      hobbies,
+      todoList,
+      uselessButton: <button>This button do nothing at all</button>
+    };
+  }
+
   render() {
+    let appState = this.state; // make changes on the component's properties, not the variables defined outside of the component
     let helloWorld = <h1>Welcome to Viet Chip Journal XD</h1>;
-    let creator = {
-      firstName: 'Alex',
-      lastName: 'Vuong'
-    }
+
     return (
       <div className="App">
         <div className="author-intro">
           {helloWorld}
           <h2>My name is:</h2>
-          <p>{creator.firstName} {creator.lastName}</p>
+          <p>{appState.appCreator.firstName} {appState.appCreator.lastName}</p>
         </div>
         <div className="book-list">
           <h3>These books are in my book I am reading:</h3>
           {/* Apply arrow function with one param, needs no parenthesises */}
-          {list.map(item =>
+          {appState.list.map(item =>
               <div key={item.objectID}>
                 <span>
                   <a href={item.url}>{item.title}</a>
@@ -112,7 +136,7 @@ class App extends Component {
               <th>Rate</th>
             </tr>
             {/* Two params, wrapped inside parenthesises */}
-            {hobbies.map((item, index) =>
+            {appState.hobbies.map((item, index) =>
               <tr key={index}>
                 <td>{item.title}</td>
                 <td>{item.rate}</td>
@@ -121,9 +145,10 @@ class App extends Component {
           </tbody>
         </table>
         <h3 style={{color:'orange'}}>To-do list:</h3>
-        <TodoList list={todoList} />
+        <TodoList list={appState.todoList} />
         <h3 style={{color:'red', fontStyle:'italic', fontWeight:'900'}}>Reversed To-do list:</h3>
-        <ReversedTodoList list={todoList} />
+        <ReversedTodoList list={appState.todoList} />
+        {appState.uselessButton}
       </div>
     );
   }
