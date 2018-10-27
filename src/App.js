@@ -28,18 +28,22 @@ const list = [
 
 const hobbies = [
   {
+      id: '1',
       title: 'Swimming',
       rate: 9
   },
   {
+      id: '2',
       title: 'Playing games',
       rate: 4
   },
   {
+      id: '3',
       title: 'Watching movies',
       rate: 7.5
   },
   {
+      id: '4',
       title: 'Laiding (just kidding)',
       rate: 10
   }
@@ -47,14 +51,17 @@ const hobbies = [
 
 const todoList = [
   {
+    id: '1',
     title: 'Learn React',
     estimateTime: '1 month'
   },
   {
+    id: '2',
     title: 'Go on a trip to Great Ocean Road',
     estimateTime: '2 days'
   },
   {
+    id: '3',
     title: 'Travel to other state, e.g. Tasmania, Canberra & Queensland',
     estimateTime: '5 - 6 days'
   }
@@ -63,7 +70,7 @@ const todoList = [
 function TodoList(props, index) {
   const listArray = props.list;
   const listItems = listArray.map(item =>
-    <li>{item.title + ': ' + item.estimateTime}</li>
+    <li key={item.id}>{item.title + ': ' + item.estimateTime}</li>
   );
   return (
     <ul className="todo-list">
@@ -76,7 +83,7 @@ const ReversedTodoList = (props, index) =>
   <ul className="reversed-todo-list">
     {
       props.list.slice(0).reverse().map(item =>
-        <li>{item.estimateTime + ': ' + item.title}</li>
+        <li key={props.list - item.id}>{item.estimateTime + ': ' + item.title}</li>
       )
     }
   </ul>
@@ -101,7 +108,32 @@ class App extends Component {
       todoList,
       uselessButton: <button>This button do nothing at all</button>
     };
+
+    // About binding:
+    // https://medium.freecodecamp.org/this-is-why-we-need-to-bind-event-handlers-in-class-components-in-react-f7ea1a6f93eb
+    this.onDismiss = this.onDismiss.bind(this);
   }
+
+  onDismiss(id) {
+    const isNotId = item => item.objectID !== id;
+    const updatedList = this.state.list.filter(isNotId);
+    this.setState({ list: updatedList });
+  }
+  //  Another way of binding: use arrow function
+  /*
+  onDismiss = (id) => {
+    console.log(this);
+    const isNotId = item => item.objectID !== id;
+    const updatedList = this.state.list.filter(isNotId);
+    this.setState({ list: updatedList });
+  }
+  //
+  //  Also, state can be declared with ease:
+  //  state = { stateProps: value };
+  //
+  //  Also known as: `class field declaration`
+  //  https://github.com/the-road-to-learn-react/react-alternative-class-component-syntax
+  */
 
   render() {
     let appState = this.state; // make changes on the component's properties, not the variables defined outside of the component
@@ -125,6 +157,14 @@ class App extends Component {
                 <span>{item.author}</span>
                 <span>{item.num_comments}</span>
                 <span>{item.points}</span>
+                <span>
+                  <button
+                    onClick={() => this.onDismiss(item.objectID)}
+                    type="button"
+                  >
+                    Dismiss
+                  </button>
+                </span>
               </div>
           )}
         </div>
@@ -136,8 +176,8 @@ class App extends Component {
               <th>Rate</th>
             </tr>
             {/* Two params, wrapped inside parenthesises */}
-            {appState.hobbies.map((item, index) =>
-              <tr key={index}>
+            {appState.hobbies.map(item =>
+              <tr key={item.id}>
                 <td>{item.title}</td>
                 <td>{item.rate}</td>
               </tr>
