@@ -88,23 +88,37 @@ const ReversedTodoList = (props, index) =>
     }
   </ul>
 
-class App extends Component {
+const isSearched = searchTerm => item =>
+    //  Add condition
+    item.title.toLowerCase().includes(searchTerm.toLowerCase());
+/**
+ * ES5
+ function isSearched(searchTerm) {
+   return function(item) {
+     //  Add condition
+     return item.title.toLowerCase().includes(searchTerm.toLowerCase());
+   }
+ }
+ */
 
-  /*
-  * Pass in the props (input params)
-  * Initiate the state of the App component
-  */
+class App extends Component {
+  /**
+   * Pass in the props (input params)
+   * Initiate the state of the App component
+   */
   constructor(props) {
     super(props);
 
     this.state = {
       appCreator: creator,
-      /*list: list,
-      hobbies: hobbies,
-      todoList: todoList */
+
+      // list: list,
+      // hobbies: hobbies,
+      // todoList: todoList
       // ---Using shorthand--->>
       list,
       hobbies,
+      searchTerm: '',
       todoList,
       uselessButton: <button>This button do nothing at all</button>
     };
@@ -112,6 +126,7 @@ class App extends Component {
     // About binding:
     // https://medium.freecodecamp.org/this-is-why-we-need-to-bind-event-handlers-in-class-components-in-react-f7ea1a6f93eb
     this.onDismiss = this.onDismiss.bind(this);
+    this.onSearchChange = this.onSearchChange.bind(this);
   }
 
   onDismiss(id) {
@@ -119,15 +134,19 @@ class App extends Component {
     const updatedList = this.state.list.filter(isNotId);
     this.setState({ list: updatedList });
   }
-  //  Another way of binding: use arrow function
-  /*
-  onDismiss = (id) => {
-    console.log(this);
-    const isNotId = item => item.objectID !== id;
-    const updatedList = this.state.list.filter(isNotId);
-    this.setState({ list: updatedList });
+
+  onSearchChange(event) {
+    this.setState({ searchTerm: event.target.value });
   }
-  //
+  /**
+   *
+   Another way of binding: use arrow function
+   onDismiss = (id) => {
+     console.log(this);
+     const isNotId = item => item.objectID !== id;
+     const updatedList = this.state.list.filter(isNotId);
+     this.setState({ list: updatedList });
+   }
   //  Also, state can be declared with ease:
   //  state = { stateProps: value };
   //
@@ -138,6 +157,7 @@ class App extends Component {
   render() {
     let appState = this.state; // make changes on the component's properties, not the variables defined outside of the component
     let helloWorld = <h1>Welcome to Viet Chip Journal XD</h1>;
+    const { searchTerm, list } = this.state;
 
     return (
       <div className="App">
@@ -149,7 +169,15 @@ class App extends Component {
         <div className="book-list">
           <h3>These books are in my book I am reading:</h3>
           {/* Apply arrow function with one param, needs no parenthesises */}
-          {appState.list.map(item =>
+          {list.map(item => {
+            const onHandleDismiss = () => {
+              console.log('High-order functions in Javascript example:');
+              console.log('The 2nd approach to assigning a func/method to an event handle');
+
+              return this.onDismiss(item.objectID);
+            }
+
+            return (
               <div key={item.objectID}>
                 <span>
                   <a href={item.url}>{item.title}</a>
@@ -159,24 +187,39 @@ class App extends Component {
                 <span>{item.points}</span>
                 <span>
                   <button
-                    onClick={() => this.onDismiss(item.objectID)}
+                    // onClick={() => this.onDismiss(item.objectID)}
+                    onClick={onHandleDismiss}
                     type="button"
                   >
                     Dismiss
                   </button>
                 </span>
               </div>
-          )}
+            );
+          })}
         </div>
         <h3 style={{color:'green'}}>These are my hobbies:</h3>
+        {/* Search bar */}
+        <form>
+          <span>Search: </span>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={this.onSearchChange} // Happen immediately after the value is changed
+          />
+        </form>
         <table className="hobbies-table">
           <tbody>
             <tr>
               <th>Hobby</th>
               <th>Rate</th>
             </tr>
-            {/* Two params, wrapped inside parenthesises */}
-            {appState.hobbies.map(item =>
+            {/**
+              * filter(() => item.title.includes(searchTerm))
+              * Problem: this = filter, filter.state = undefined
+              * Solution: pass in searchTerm as a param
+              */}
+            {appState.hobbies.filter(isSearched(searchTerm)).map(item => // Add filter here to perfom search
               <tr key={item.id}>
                 <td>{item.title}</td>
                 <td>{item.rate}</td>
