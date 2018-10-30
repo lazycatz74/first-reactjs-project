@@ -160,57 +160,33 @@ class App extends Component {
     const { searchTerm, list } = this.state;
 
     return (
-      <div className="App">
+      <div className="page">
         <div className="author-intro">
           {helloWorld}
           <h2>My name is:</h2>
           <p>{appState.appCreator.firstName} {appState.appCreator.lastName}</p>
         </div>
-        <div className="book-list">
-          <h3>These books are in my book I am reading:</h3>
-          {/* Apply arrow function with one param, needs no parenthesises */}
-          {list.map(item => {
-            const onHandleDismiss = () => {
-              console.log('High-order functions in Javascript example:');
-              console.log('The 2nd approach to assigning a func/method to an event handle');
-
-              return this.onDismiss(item.objectID);
-            }
-
-            return (
-              <div key={item.objectID}>
-                <span>
-                  <a href={item.url}>{item.title}</a>
-                </span>
-                <span>{item.author}</span>
-                <span>{item.num_comments}</span>
-                <span>{item.points}</span>
-                <span>
-                  <button
-                    // onClick={() => this.onDismiss(item.objectID)}
-                    onClick={onHandleDismiss}
-                    type="button"
-                  >
-                    Dismiss
-                  </button>
-                </span>
-              </div>
-            );
-          })}
-        </div>
-        <h3 style={{color:'green'}}>These are my hobbies:</h3>
         {/* Search bar */}
-        <form>
-          <span>Search: </span>
-          <input
-            type="text"
+        <div className="interactions">
+          <Search
             value={searchTerm}
             onChange={this.onSearchChange} // Happen immediately after the value is changed
-          />
-        </form>
+          >
+            Search bar:
+          </Search>
+        </div>
+        <Table
+          list={list}
+          pattern={searchTerm}
+          onDismiss={this.onDismiss}
+        />
+        <h3 style={{color:'green'}}>These are my hobbies:</h3>
         <table className="hobbies-table">
           <tbody>
             <tr>
+              {/**
+                * Destructure list's properties here to assign table heading automatically
+                */}
               <th>Hobby</th>
               <th>Rate</th>
             </tr>
@@ -236,5 +212,141 @@ class App extends Component {
     );
   }
 }
+
+/* The class component version
+class Search extends Component {
+  render() {
+    const { value, onChange, children } = this.props;
+    return (
+      <form>
+        <span>{children} </span>
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+        />
+      </form>
+    )
+  }
+}*/
+
+// The functional stateless component version
+const Search = ({ value, onChange, children }) =>
+    <form>
+      <span>{children} </span>
+      <input
+        type="text"
+        value={value}
+        onChange={onChange}
+      />
+    </form>
+
+/*class Table extends Component {
+  render() {
+    const { list, pattern, onDismiss } = this.props;
+    /*const onHandleDismiss = () => {
+        console.log('High-order functions in Javascript example:');
+        console.log('The 2nd approach to assigning a func/method to an event handle');
+
+        return this.onDismiss(item.objectID);
+      }
+
+    return (
+      <div>
+        <h3>These books are in my book I am reading:</h3>
+        {list.filter(isSearched(pattern)).map(item =>
+          <div key={item.objectID}>
+            <span>
+              <a href={item.url}>{item.title}</a>
+            </span>
+            <span>{item.author}</span>
+            <span>{item.num_comments}</span>
+            <span>{item.points}</span>
+            <span>
+              <Button onClick={() => onDismiss(item.objectID)}>
+                DISMISS
+              </Button>
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+}*/
+
+const Table = ({list, pattern, onDismiss}) => {
+  const largeColumn = {
+    width: '40%',
+  };
+
+  const midColumn = {
+    width: '30%',
+  };
+
+  const smallColumn = {
+    width: '10%',
+  };
+
+  return (
+    <div>
+      <h3>These books are in my book I am reading:</h3>
+      <div className="table">
+        {list.filter(isSearched(pattern)).map(item =>
+          <div key={item.objectID} className="table-row">
+            <span style={{ width: '40%' }}>
+              <a href={item.url}>{item.title}</a>
+            </span>
+            <span style={midColumn}>{item.author}</span>
+            <span style={smallColumn}>{item.num_comments}</span>
+            <span style={smallColumn}>{item.points}</span>
+            <span style={smallColumn}>
+              <Button
+                onClick={() => onDismiss(item.objectID)}
+                className="button-inline"
+              >
+                DISMISS
+              </Button>
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/*class Button extends Component {
+  render() {
+    const {
+      onClick,
+      className = '',
+      children,
+    } = this.props;
+
+    console.log(className);
+    return (
+      <button
+        onClick={onClick}
+        className={className}
+        type="button"
+      >
+        {children}
+      </button>
+    );
+  }
+}*/
+
+const Button = ({ onClick, className = '', children }) => {
+  console.log(className);
+  return (
+    <button
+      onClick={onClick}
+      className={className}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+}
+
 
 export default App;
