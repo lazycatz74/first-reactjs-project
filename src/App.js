@@ -55,8 +55,15 @@ class App extends Component {
   onDismiss(id) {
     console.log('Dismissing item with objectID: ' + id);
     const isNotId = item => item.objectID !== id;
-    const updatedList = this.state.list.filter(isNotId);
-    this.setState({ list: updatedList });
+    const updatedList = this.state.result.hits.filter(isNotId);
+
+    this.setState({
+      //  Create new object (maintain immutability) with Object.assign()
+      //  newlist --override--> result
+      //  result updated with newlist --override--> empty object {}
+      //  result: Object.assign({}, this.state.result, { hits: updatedList })
+      result: { ...this.state.result, hits: updatedList }
+    });
   }
 
   onSearchChange(event) {
