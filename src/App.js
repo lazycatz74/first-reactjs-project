@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 
 const DEFAULT_QUERY = 'redux';
-const DEFAULT_HPP = '100';
+const DEFAULT_HPP = '20';
 
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
@@ -30,6 +30,7 @@ class App extends Component {
       results: null,
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
+      error: null,
     };
 
     //  Bind methods here
@@ -61,29 +62,32 @@ class App extends Component {
     ];
 
     //  Update the value of the key in the results map
+    console.log('Cache data into results');
     this.setState({
         results: {
           ...results,
           [searchKey]: { hits: updatedHits, page }
         }
     });
-    console.log(`Showing results til page ${results[searchKey].page}, total results: ${results[searchKey].hits.length}`);
 
+    console.log(`Showing results til page ${this.state.results[searchKey].page}, total results: ${this.state.results[searchKey].hits.length}`);
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
-    console.log('Perfom searching and fetching form API, page to be log: ' + page);
+    console.log('Perfom searching "' + searchTerm + '" and fetching from API, page to be log: ' + page);
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_TAG}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(response => response.json())
       .then(result => this.setSearchTopStories(result))
-      .catch(error => error);
+      .catch(error => this.setState({ error }));
     //console.log('Fetched list is ' + (this.state.result && this.state.result.hits));
   }
 
   componentDidMount() {
+    console.log('Mounting app');
     const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm });
     this.fetchSearchTopStories(searchTerm);
+    console.log('Finish mounting app');
   }
 
   onSearchSubmit(event) {
@@ -143,7 +147,8 @@ class App extends Component {
       appCreator,
       searchTerm,
       results,
-      searchKey
+      searchKey,
+      error
     } = this.state;
 
     const page = (
@@ -157,6 +162,8 @@ class App extends Component {
       results[searchKey] &&
       results[searchKey].hits
     ) || [];
+
+    if (error) console.log('Error is ' + error);
 
     return (
       <div className="page">
@@ -178,11 +185,16 @@ class App extends Component {
             More
           </Button>
         </div>
-        {/* If results is null then list will be an empty array, thus table displays nothing */}
-          <Table
+        { error
+          ? <div className="interactions">
+            <h2>Something went wrong!</h2>
+          </div>
+          /* If results is null then list will be an empty array, thus table displays nothing */
+          : <Table
             list={list}
             onDismiss={this.onDismiss}
           />
+        }
       </div>
     );
   }
