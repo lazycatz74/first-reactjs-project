@@ -111,21 +111,25 @@ class App extends Component {
 
   onDismiss(id) {
     const { results, searchKey } = this.state;
+    const { hits, page } = results[searchKey]
 
     console.log('Dismissing item with objectID: ' + id);
     const isNotId = item => item.objectID !== id;
-    const updatedList = results[searchKey].hits.filter(isNotId);
+    const updatedHits = hits.filter(isNotId);
 
     this.setState({
       //  Create new object (maintain immutability) with Object.assign()
       //  newlist --override--> result
       //  result updated with newlist --override--> empty object {}
       //  result: Object.assign({}, this.state.result, { hits: updatedList })
+      //  **CAUTION**
+      //  the value results takes should be a completely new object (due to Immutability)
       results: {
          ...results,
-         [searchKey]: { hits: updatedList }
+         [searchKey]: { hits: updatedHits, page }
       }
     });
+
   }
 
   onSearchChange(event) {
@@ -150,6 +154,7 @@ class App extends Component {
 
   render() {
     console.log('Render app');
+    console.log(this.state);
 
     const {
       appCreator,
@@ -171,6 +176,14 @@ class App extends Component {
       results[searchKey].hits
     ) || [];
 
+    const responseMessage = (
+      results &&
+      results[searchKey] &&
+      <h2 style={{ color: 'red' }}>You searched for {searchKey}, I found {results[searchKey].hits.length} results,
+        displayed in {results[searchKey].page + 1} pages
+      </h2>
+    ) || null;
+
     if (error) console.log('Error is ' + error);
 
     return (
@@ -179,6 +192,7 @@ class App extends Component {
           <h1>Welcome to Viet Chip Journal XD</h1>
           <h2>My name is:</h2>
           <p>{appCreator.firstName} {appCreator.lastName}</p>
+          <h2>Please search here for latest news:</h2>
         </div>
         {/* Search bar */}
         <div className="interactions">
@@ -186,15 +200,18 @@ class App extends Component {
             value={searchTerm}
             onChange={this.onSearchChange}
             onSubmit={this.onSearchSubmit}
+            buttonName="Press here to search"
           >
-            Press here to search
+            <Button
+              onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
+            >
+              More
+            </Button>
           </Search>
-          <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
-            More
-          </Button>
         </div>
+        {responseMessage}
         { error
-          ? <div className="interactions">
+          ? <div className="interactions table-empty">
             <h2>Something went wrong!</h2>
           </div>
           /* If results is null then list will be an empty array, thus table displays nothing */
@@ -226,7 +243,7 @@ class Search extends Component {
 }*/
 
 // The functional stateless component version
-const Search = ({ value, onChange, onSubmit, children }) =>
+const Search = ({ value, onChange, onSubmit, buttonName, children }) =>
     <form onSubmit={onSubmit}>
       <input
         type="text"
@@ -234,8 +251,9 @@ const Search = ({ value, onChange, onSubmit, children }) =>
         onChange={onChange}
       />
       <button type="submit">
-        {children}
+        {buttonName}
       </button>
+      {children}
     </form>
 
 /*class Table extends Component {
@@ -286,8 +304,14 @@ const Table = ({list, onDismiss}) => {
 
   return (
     <div>
-      <h3>These books are in my book I am reading:</h3>
       <div className="table">
+        <div className="table-header">
+          <span style={{ width: '40%' }}>Article</span>
+          <span style={midColumn}>Author</span>
+          <span style={smallColumn}>Number of comments</span>
+          <span style={smallColumn}>Points</span>
+          <span style={smallColumn}></span>
+        </div>
         {list.map(item =>
           <div key={item.objectID} className="table-row">
             <span style={{ width: '40%' }}>
