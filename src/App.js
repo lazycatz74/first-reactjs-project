@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
+import axios from 'axios';
 import './App.css';
 
 const DEFAULT_QUERY = 'redux';
@@ -18,6 +19,8 @@ const creator = {
 }
 
 class App extends Component {
+  _isMounted = false;
+
   /**
    * Pass in the props (input params)
    * Initiate the state of the App component
@@ -75,19 +78,24 @@ class App extends Component {
 
   fetchSearchTopStories(searchTerm, page = 0) {
     console.log('Perfom searching "' + searchTerm + '" and fetching from API, page to be log: ' + page);
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_TAG}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
-      .then(response => response.json())
-      .then(result => this.setSearchTopStories(result))
-      .catch(error => this.setState({ error }));
+    axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_TAG}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
+      .then(result => this._isMounted && this.setSearchTopStories(result.data))
+      .catch(error => this._isMounted && this.setState({ error }));
     //console.log('Fetched list is ' + (this.state.result && this.state.result.hits));
   }
 
   componentDidMount() {
     console.log('Mounting app');
+    this._isMounted = true;
+
     const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm });
     this.fetchSearchTopStories(searchTerm);
     console.log('Finish mounting app');
+  }
+
+  componentWillMount() {
+    this._isMounted = false;
   }
 
   onSearchSubmit(event) {
