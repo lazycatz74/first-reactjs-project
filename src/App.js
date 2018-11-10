@@ -1,107 +1,26 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
+import axios from 'axios';
 import './App.css';
+
+const DEFAULT_QUERY = 'redux';
+const DEFAULT_HPP = '20';
+
+const PATH_BASE = 'https://hn.algolia.com/api/v1';
+const PATH_SEARCH = '/search';
+const PARAM_SEARCH = 'query=';
+const PARAM_TAG = 'tags=story';
+const PARAM_PAGE = 'page=';
+const PARAM_HPP = 'hitsPerPage=';
 
 const creator = {
   firstName: 'Alex',
   lastName: 'Vuong'
 }
 
-const list = [
-  {
-    title: 'React',
-    url: 'https://reactjs.org/',
-    author: 'Jordan Walke',
-    num_comments: 3,
-    points: 4,
-    objectID: 0,
-  },
-  {
-    title: 'Redux',
-    url: 'https://redux.js.org/',
-    author: 'Dan Abramov, Andrew Clark',
-    num_comments: 2,
-    points: 5,
-    objectID: 1,
-  },
-]
-
-const hobbies = [
-  {
-      id: '1',
-      title: 'Swimming',
-      rate: 9
-  },
-  {
-      id: '2',
-      title: 'Playing games',
-      rate: 4
-  },
-  {
-      id: '3',
-      title: 'Watching movies',
-      rate: 7.5
-  },
-  {
-      id: '4',
-      title: 'Laiding (just kidding)',
-      rate: 10
-  }
-]
-
-const todoList = [
-  {
-    id: '1',
-    title: 'Learn React',
-    estimateTime: '1 month'
-  },
-  {
-    id: '2',
-    title: 'Go on a trip to Great Ocean Road',
-    estimateTime: '2 days'
-  },
-  {
-    id: '3',
-    title: 'Travel to other state, e.g. Tasmania, Canberra & Queensland',
-    estimateTime: '5 - 6 days'
-  }
-]
-
-function TodoList(props, index) {
-  const listArray = props.list;
-  const listItems = listArray.map(item =>
-    <li key={item.id}>{item.title + ': ' + item.estimateTime}</li>
-  );
-  return (
-    <ul className="todo-list">
-      {listItems}
-    </ul>
-  );
-}
-
-const ReversedTodoList = (props, index) =>
-  <ul className="reversed-todo-list">
-    {
-      props.list.slice(0).reverse().map(item =>
-        <li key={props.list - item.id}>{item.estimateTime + ': ' + item.title}</li>
-      )
-    }
-  </ul>
-
-const isSearched = searchTerm => item =>
-    //  Add condition
-    item.title.toLowerCase().includes(searchTerm.toLowerCase());
-/**
- * ES5
- function isSearched(searchTerm) {
-   return function(item) {
-     //  Add condition
-     return item.title.toLowerCase().includes(searchTerm.toLowerCase());
-   }
- }
- */
-
 class App extends Component {
+  _isMounted = false;
+
   /**
    * Pass in the props (input params)
    * Initiate the state of the App component
@@ -111,31 +30,110 @@ class App extends Component {
 
     this.state = {
       appCreator: creator,
-
-      // list: list,
-      // hobbies: hobbies,
-      // todoList: todoList
-      // ---Using shorthand--->>
-      list,
-      hobbies,
-      searchTerm: '',
-      todoList,
-      uselessButton: <button>This button do nothing at all</button>
+      results: null,
+      searchKey: '',
+      searchTerm: DEFAULT_QUERY,
+      error: null,
     };
 
-    // About binding:
-    // https://medium.freecodecamp.org/this-is-why-we-need-to-bind-event-handlers-in-class-components-in-react-f7ea1a6f93eb
-    this.onDismiss = this.onDismiss.bind(this);
+    //  Bind methods here
+    this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
+    this.setSearchTopStories = this.setSearchTopStories.bind(this);
+    this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
+  }
+
+  needsToSearchTopStories(searchTerm) {
+    return !this.state.results[searchTerm];
+  }
+
+  setSearchTopStories(result) {
+    const { hits, page } = result;
+    const { searchKey, results } = this.state;
+
+    //  If the result map is not null and there exists the older data of the searchKey
+    const oldHits = results && results[searchKey]
+      ? results[searchKey].hits
+      : [];
+
+    //  Add new hits if we are searching for more results of the same term
+    const updatedHits = [
+      ...oldHits,
+      ...hits
+    ];
+
+    //  Update the value of the key in the results map
+    console.log('Cache data into results');
+    this.setState({
+        results: {
+          ...results,
+          [searchKey]: { hits: updatedHits, page }
+        }
+    });
+
+    console.log(`Showing results til page ${this.state.results[searchKey].page}, total results: ${this.state.results[searchKey].hits.length}`);
+  }
+
+  fetchSearchTopStories(searchTerm, page = 0) {
+    console.log('Perfom searching "' + searchTerm + '" and fetching from API, page to be log: ' + page);
+    axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_TAG}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
+      .then(result => this._isMounted && this.setSearchTopStories(result.data))
+      .catch(error => this._isMounted && this.setState({ error }));
+    //console.log('Fetched list is ' + (this.state.result && this.state.result.hits));
+  }
+
+  componentDidMount() {
+    console.log('Mounting app');
+    this._isMounted = true;
+
+    const { searchTerm } = this.state;
+    this.setState({ searchKey: searchTerm });
+    this.fetchSearchTopStories(searchTerm);
+    console.log('Finish mounting app');
+  }
+
+  componentWillMount() {
+    this._isMounted = false;
+  }
+
+  onSearchSubmit(event) {
+    const { searchTerm } = this.state;
+    this.setState({ searchKey: searchTerm });
+
+    if (this.needsToSearchTopStories(searchTerm)) {
+      this.fetchSearchTopStories(searchTerm);
+    }
+
+    event.preventDefault();
   }
 
   onDismiss(id) {
+    const { results, searchKey } = this.state;
+    const { hits, page } = results[searchKey]
+
+    console.log('Dismissing item with objectID: ' + id);
     const isNotId = item => item.objectID !== id;
-    const updatedList = this.state.list.filter(isNotId);
-    this.setState({ list: updatedList });
+    const updatedHits = hits.filter(isNotId);
+
+    this.setState({
+      //  Create new object (maintain immutability) with Object.assign()
+      //  newlist --override--> result
+      //  result updated with newlist --override--> empty object {}
+      //  result: Object.assign({}, this.state.result, { hits: updatedList })
+      //  **CAUTION**
+      //  the value results takes should be a completely new object (due to Immutability)
+      results: {
+         ...results,
+         [searchKey]: { hits: updatedHits, page }
+      }
+    });
+
   }
 
   onSearchChange(event) {
+    console.log('Changing search value');
     this.setState({ searchTerm: event.target.value });
   }
   /**
@@ -155,59 +153,73 @@ class App extends Component {
   */
 
   render() {
-    let appState = this.state; // make changes on the component's properties, not the variables defined outside of the component
-    let helloWorld = <h1>Welcome to Viet Chip Journal XD</h1>;
-    const { searchTerm, list } = this.state;
+    console.log('Render app');
+    console.log(this.state);
+
+    const {
+      appCreator,
+      searchTerm,
+      results,
+      searchKey,
+      error
+    } = this.state;
+
+    const page = (
+      results &&
+      results[searchKey] &&
+      results[searchKey].page
+    ) || 0;
+
+    const list = (
+      results &&
+      results[searchKey] &&
+      results[searchKey].hits
+    ) || [];
+
+    const responseMessage = (
+      results &&
+      results[searchKey] &&
+      <h2 style={{ color: 'red' }}>You searched for {searchKey}, I found {results[searchKey].hits.length} results,
+        displayed in {results[searchKey].page + 1} pages
+      </h2>
+    ) || null;
+
+    if (error) console.log('Error is ' + error);
 
     return (
       <div className="page">
         <div className="author-intro">
-          {helloWorld}
+          <h1>Welcome to Viet Chip Journal XD</h1>
           <h2>My name is:</h2>
-          <p>{appState.appCreator.firstName} {appState.appCreator.lastName}</p>
+          <p>{appCreator.firstName} {appCreator.lastName}</p>
+          <h2>Please search here for latest news:</h2>
         </div>
         {/* Search bar */}
         <div className="interactions">
           <Search
             value={searchTerm}
-            onChange={this.onSearchChange} // Happen immediately after the value is changed
+            onChange={this.onSearchChange}
+            onSubmit={this.onSearchSubmit}
+            buttonName="Press here to search"
           >
-            Search bar:
+            <Button
+              onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
+            >
+              More
+            </Button>
           </Search>
         </div>
-        <Table
-          list={list}
-          pattern={searchTerm}
-          onDismiss={this.onDismiss}
-        />
-        <h3 style={{color:'green'}}>These are my hobbies:</h3>
-        <table className="hobbies-table">
-          <tbody>
-            <tr>
-              {/**
-                * Destructure list's properties here to assign table heading automatically
-                */}
-              <th>Hobby</th>
-              <th>Rate</th>
-            </tr>
-            {/**
-              * filter(() => item.title.includes(searchTerm))
-              * Problem: this = filter, filter.state = undefined
-              * Solution: pass in searchTerm as a param
-              */}
-            {appState.hobbies.filter(isSearched(searchTerm)).map(item => // Add filter here to perfom search
-              <tr key={item.id}>
-                <td>{item.title}</td>
-                <td>{item.rate}</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        <h3 style={{color:'orange'}}>To-do list:</h3>
-        <TodoList list={appState.todoList} />
-        <h3 style={{color:'red', fontStyle:'italic', fontWeight:'900'}}>Reversed To-do list:</h3>
-        <ReversedTodoList list={appState.todoList} />
-        {appState.uselessButton}
+        {responseMessage}
+        { error
+          ? <div className="interactions table-empty">
+            <h2>Something went wrong!</h2>
+          </div>
+          /* If results is null then list will be an empty array, thus table displays nothing */
+          : <Table
+            list={list}
+            onDismiss={this.onDismiss}
+          />
+        }
       </div>
     );
   }
@@ -231,14 +243,17 @@ class Search extends Component {
 }*/
 
 // The functional stateless component version
-const Search = ({ value, onChange, children }) =>
-    <form>
-      <span>{children} </span>
+const Search = ({ value, onChange, onSubmit, buttonName, children }) =>
+    <form onSubmit={onSubmit}>
       <input
         type="text"
         value={value}
         onChange={onChange}
       />
+      <button type="submit">
+        {buttonName}
+      </button>
+      {children}
     </form>
 
 /*class Table extends Component {
@@ -274,7 +289,7 @@ const Search = ({ value, onChange, children }) =>
   }
 }*/
 
-const Table = ({list, pattern, onDismiss}) => {
+const Table = ({list, onDismiss}) => {
   const largeColumn = {
     width: '40%',
   };
@@ -289,9 +304,15 @@ const Table = ({list, pattern, onDismiss}) => {
 
   return (
     <div>
-      <h3>These books are in my book I am reading:</h3>
       <div className="table">
-        {list.filter(isSearched(pattern)).map(item =>
+        <div className="table-header">
+          <span style={{ width: '40%' }}>Article</span>
+          <span style={midColumn}>Author</span>
+          <span style={smallColumn}>Number of comments</span>
+          <span style={smallColumn}>Points</span>
+          <span style={smallColumn}></span>
+        </div>
+        {list.map(item =>
           <div key={item.objectID} className="table-row">
             <span style={{ width: '40%' }}>
               <a href={item.url}>{item.title}</a>
@@ -336,7 +357,6 @@ const Table = ({list, pattern, onDismiss}) => {
 }*/
 
 const Button = ({ onClick, className = '', children }) => {
-  console.log(className);
   return (
     <button
       onClick={onClick}
