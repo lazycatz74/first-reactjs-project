@@ -94,7 +94,7 @@ class App extends Component {
     console.log('Finish mounting app');
   }
 
-  componentWillMount() {
+  componentWillUnmount() {
     this._isMounted = false;
   }
 
