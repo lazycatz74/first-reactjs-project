@@ -154,7 +154,6 @@ class App extends Component {
 
   render() {
     console.log('Render app');
-    console.log(this.state);
 
     const {
       appCreator,
@@ -370,3 +369,9 @@ const Button = ({ onClick, className = '', children }) => {
 
 
 export default App;
+
+export {
+  Button,
+  Search,
+  Table,
+};
