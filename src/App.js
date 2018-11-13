@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 import './App.css';
 
 const DEFAULT_QUERY = 'redux';
@@ -224,23 +224,6 @@ class App extends Component {
   }
 }
 
-/* The class component version
-class Search extends Component {
-  render() {
-    const { value, onChange, children } = this.props;
-    return (
-      <form>
-        <span>{children} </span>
-        <input
-          type="text"
-          value={value}
-          onChange={onChange}
-        />
-      </form>
-    )
-  }
-}*/
-
 // The functional stateless component version
 const Search = ({ value, onChange, onSubmit, buttonName, children }) =>
     <form onSubmit={onSubmit}>
@@ -254,39 +237,6 @@ const Search = ({ value, onChange, onSubmit, buttonName, children }) =>
       </button>
       {children}
     </form>
-
-/*class Table extends Component {
-  render() {
-    const { list, pattern, onDismiss } = this.props;
-    /*const onHandleDismiss = () => {
-        console.log('High-order functions in Javascript example:');
-        console.log('The 2nd approach to assigning a func/method to an event handle');
-
-        return this.onDismiss(item.objectID);
-      }
-
-    return (
-      <div>
-        <h3>These books are in my book I am reading:</h3>
-        {list.filter(isSearched(pattern)).map(item =>
-          <div key={item.objectID}>
-            <span>
-              <a href={item.url}>{item.title}</a>
-            </span>
-            <span>{item.author}</span>
-            <span>{item.num_comments}</span>
-            <span>{item.points}</span>
-            <span>
-              <Button onClick={() => onDismiss(item.objectID)}>
-                DISMISS
-              </Button>
-            </span>
-          </div>
-        )}
-      </div>
-    );
-  }
-}*/
 
 const Table = ({list, onDismiss}) => {
   const largeColumn = {
@@ -334,39 +284,53 @@ const Table = ({list, onDismiss}) => {
   );
 }
 
-/*class Button extends Component {
-  render() {
-    const {
-      onClick,
-      className = '',
-      children,
-    } = this.props;
+const Button = ({
+  onClick,
+  className,
+  children
+}) =>
+  <button
+    onClick={onClick}
+    className={className}
+    type="button"
+  >
+    {children}
+  </button>
 
-    console.log(className);
-    return (
-      <button
-        onClick={onClick}
-        className={className}
-        type="button"
-      >
-        {children}
-      </button>
-    );
-  }
-}*/
-
-const Button = ({ onClick, className = '', children }) => {
-  return (
-    <button
-      onClick={onClick}
-      className={className}
-      type="button"
-    >
-      {children}
-    </button>
-  );
+Search.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  onSubmit: PropTypes.func,
+  buttonName: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
 }
 
+Search.defaultProps = {
+  value: DEFAULT_QUERY,
+}
+
+Table.propTypes = {
+  list: PropTypes.arrayOf(
+    PropTypes.shape({
+      objectID: PropTypes.string.isRequired,
+      author: PropTypes.string,
+      url: PropTypes.string,
+      num_comments: PropTypes.number,
+      points: PropTypes.number,
+    })
+  ).isRequired,
+  onDismiss: PropTypes.func,
+}
+
+Button.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
+
+Button.defaultProps = {
+  className: '',
+};
 
 export default App;
 

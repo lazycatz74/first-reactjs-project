@@ -29,13 +29,19 @@ describe('Search', () => {
 
   it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Search>Search</Search>, div);
+    ReactDOM.render(
+      <Search buttonName="Search" onChange={() => true}>
+        <div>Some children</div>
+      </Search>
+    , div);
     ReactDOM.unmountComponentAtNode(div);
   });
 
   test('has a valid snapshot', () => {
     const component = renderer.create(
-      <Search>Search</Search>
+      <Search buttonName="Search">
+        <div>Some children</div>
+      </Search>
     );
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
@@ -45,21 +51,21 @@ describe('Search', () => {
 
 describe('Button', () => {
 
+  let callCount = 0;
+
   it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Button>Give me more</Button>, div);
+    ReactDOM.render(<Button onClick={() => callCount++}>Give me more</Button>, div);
     ReactDOM.unmountComponentAtNode(div);
   });
 
   test('has a valid snapshot', () => {
     const component = renderer.create(
-      <Button>Give me more</Button>
+      <Button onClick={() => callCount++}>Give me more</Button>
     );
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
   })
-
-  let callCount = 0;
 
   it('simultates click events', () => {
     const element = mount(
@@ -82,13 +88,13 @@ describe('Table', () => {
 
   it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Table {...props} />, div);
+    ReactDOM.render(<Table { ...props } />, div);
     ReactDOM.unmountComponentAtNode(div);
   });
 
   test('has a valid snapshot', () => {
     const component = renderer.create(
-      <Table {...props} />
+      <Table { ...props } />
     );
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();

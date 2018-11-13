@@ -106,6 +106,7 @@ exports[`App has a valid snapshot 1`] = `
 exports[`Button has a valid snapshot 1`] = `
 <button
   className=""
+  onClick={[Function]}
   type="button"
 >
   Give me more
@@ -116,11 +117,16 @@ exports[`Search has a valid snapshot 1`] = `
 <form>
   <input
     type="text"
+    value="redux"
   />
   <button
     type="submit"
-  />
-  Search
+  >
+    Search
+  </button>
+  <div>
+    Some children
+  </div>
 </form>
 `;
 
