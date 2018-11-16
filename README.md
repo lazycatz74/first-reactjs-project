@@ -66,7 +66,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
   
  - I nest components: e.g. Button inside Search
  
- - I use the states of component to store api's data and use them in addition. This is a great advantage - since I have few clues of how to do it in JS (quite complex I suppose, https://www.robinwieruch.de/why-frameworks-matter/)
+ - I use the states of component to store API's data and use them in addition. This is a great advantage - since I have few clues of how to do it in JS (quite complex I suppose, https://www.robinwieruch.de/why-frameworks-matter/)
  
 ### Also, learning to integrate other APIs into my React environment is very beneficial
  
@@ -79,8 +79,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 - Aha! ***Object.assign*** vesus ***spread operator*** - Use them to create **new object, which are VERY ESSENTIAL to setting value of state (*You always want to put inside setState() a fresh object*)**
 
 - Conditional rendering, use these guys:
-  - `if` statement 
-  -`&&` operator. `true && something` returns `something`, `false && something` returns `false`. **ALWAYS**
+  - `if` statement
+  - `&&` operator. `true && something` returns `something`, `false && something` returns `false`. **ALWAYS**
   - ternary operator
 
 ### Something helpful that I should include in my program more often: ***ERROR HANDLING/BOUNDARIES***
