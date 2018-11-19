@@ -224,7 +224,39 @@ class App extends Component {
   }
 }
 
-// The functional stateless component version
+//  The class component version
+//  We want to use the class component instead of the functional stateless one because
+//  We want to trigger the focus method using the mounting lifecycle methods
+ class Search extends Component {
+   componentDidMount() {
+     if (this.input) {
+       this.input.focus();
+     }
+   }
+
+   render() {
+     const {
+       value,
+       onChange,
+       onSubmit,
+       children
+     } = this.props;
+
+     return (
+       <form>
+         <span>{children} </span>
+         <input
+           type="text"
+           value={value}
+           onChange={onChange}
+           ref={el => this.input = el}
+         />
+       </form>
+     )
+   }
+ }
+
+/* The functional stateless component version
 const Search = ({ value, onChange, onSubmit, buttonName, children }) =>
     <form onSubmit={onSubmit}>
       <input
@@ -237,6 +269,7 @@ const Search = ({ value, onChange, onSubmit, buttonName, children }) =>
       </button>
       {children}
     </form>
+*/
 
 const Table = ({list, onDismiss}) => {
   const largeColumn = {
