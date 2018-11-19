@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import './App.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '20';
@@ -34,6 +36,7 @@ class App extends Component {
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
       error: null,
+      isLoading: false,
     };
 
     //  Bind methods here
@@ -70,13 +73,16 @@ class App extends Component {
         results: {
           ...results,
           [searchKey]: { hits: updatedHits, page }
-        }
+        },
+        isLoading: false
     });
 
     console.log(`Showing results til page ${this.state.results[searchKey].page}, total results: ${this.state.results[searchKey].hits.length}`);
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
+    this.setState({ isLoading: true });
+
     console.log('Perfom searching "' + searchTerm + '" and fetching from API, page to be log: ' + page);
     axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_TAG}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(result => this._isMounted && this.setSearchTopStories(result.data))
@@ -160,7 +166,8 @@ class App extends Component {
       searchTerm,
       results,
       searchKey,
-      error
+      error,
+      isLoading
     } = this.state;
 
     const page = (
@@ -201,11 +208,15 @@ class App extends Component {
             onSubmit={this.onSearchSubmit}
             buttonName="Press here to search"
           >
-            <Button
+          {
+            isLoading
+            ? <Loading />
+            : <Button
               onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
             >
               More
             </Button>
+          }
           </Search>
         </div>
         {responseMessage}
@@ -224,37 +235,47 @@ class App extends Component {
   }
 }
 
+const Loading = () =>
+  <div className="loading">
+    Loading
+    <FontAwesomeIcon icon={faSpinner} style={{marginLeft: '20px'}}/>
+  </div>
+
 //  The class component version
 //  We want to use the class component instead of the functional stateless one because
 //  We want to trigger the focus method using the mounting lifecycle methods
- class Search extends Component {
-   componentDidMount() {
-     if (this.input) {
-       this.input.focus();
-     }
-   }
+class Search extends Component {
+  componentDidMount() {
+    if (this.input) {
+      this.input.focus();
+    }
+  }
 
-   render() {
-     const {
-       value,
-       onChange,
-       onSubmit,
-       children
-     } = this.props;
+  render() {
+    const {
+      value,
+      onChange,
+      onSubmit,
+      buttonName,
+      children
+    } = this.props;
 
-     return (
-       <form>
-         <span>{children} </span>
-         <input
+    return (
+      <form onSubmit={onSubmit}>
+        <input
            type="text"
            value={value}
            onChange={onChange}
            ref={el => this.input = el}
-         />
-       </form>
-     )
-   }
- }
+        />
+        <button type="submit">
+          {buttonName}
+        </button>
+        {children}
+      </form>
+    )
+  }
+}
 
 /* The functional stateless component version
 const Search = ({ value, onChange, onSubmit, buttonName, children }) =>
