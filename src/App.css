@@ -98,9 +98,14 @@
   color: inherit;
   text-align: inherit;
   -webkit-font-smoothing: inherit;
-  padding: 0;
+  margin: 5px;
   font-size: inherit;
   cursor: pointer;
+}
+
+.button-active {
+  background-color: green;
+  color: white;
 }
 
 button:active {

@@ -5,6 +5,8 @@ import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { compose } from 'recompose';
+import { sortBy } from 'lodash';
+import classNames from 'classnames';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '20';
@@ -15,6 +17,14 @@ const PARAM_SEARCH = 'query=';
 const PARAM_TAG = 'tags=story';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
+
+const SORTS = {
+  NONE: list => list,
+  TITLE: list => sortBy(list, 'title'),
+  AUTHOR: list => sortBy(list, 'author'),
+  COMMENTS: list => sortBy(list, 'num_comments').reverse(),
+  POINTS: list => sortBy(list, 'points').reverse(),
+}
 
 const creator = {
   firstName: 'Alex',
@@ -38,6 +48,8 @@ class App extends Component {
       searchTerm: DEFAULT_QUERY,
       error: null,
       isLoading: false,
+      sortKey: 'NONE',
+      isSortReverese: false,
     };
 
     //  Bind methods here
@@ -47,6 +59,7 @@ class App extends Component {
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
+    this.onSort = this.onSort.bind(this);
   }
 
   needsToSearchTopStories(searchTerm) {
@@ -143,21 +156,11 @@ class App extends Component {
     console.log('Changing search value');
     this.setState({ searchTerm: event.target.value });
   }
-  /**
-   *
-   Another way of binding: use arrow function
-   onDismiss = (id) => {
-     console.log(this);
-     const isNotId = item => item.objectID !== id;
-     const updatedList = this.state.list.filter(isNotId);
-     this.setState({ list: updatedList });
-   }
-  //  Also, state can be declared with ease:
-  //  state = { stateProps: value };
-  //
-  //  Also known as: `class field declaration`
-  //  https://github.com/the-road-to-learn-react/react-alternative-class-component-syntax
-  */
+
+  onSort(sortKey) {
+    const isSortReverese = this.state.sortKey === sortKey && !this.state.isSortReverese;
+    this.setState({ sortKey, isSortReverese });
+  }
 
   render() {
     console.log('Render app');
@@ -168,7 +171,9 @@ class App extends Component {
       results,
       searchKey,
       error,
-      isLoading
+      isLoading,
+      sortKey,
+      isSortReverese
     } = this.state;
 
     const page = (
@@ -221,8 +226,11 @@ class App extends Component {
         {responseMessage}
         <TableWithError
           list={list}
-          onDismiss={this.onDismiss}
           error={error}
+          sortKey={sortKey}
+          isSortReverese={isSortReverese}
+          onSort={this.onSort}
+          onDismiss={this.onDismiss}
         >
         </TableWithError>
       </div>
@@ -243,7 +251,34 @@ const Button = ({
     {children}
   </button>
 
-const Table = ({list, onDismiss}) => {
+const Sort = ({
+  sortKey,
+  activateSortKey,
+  onSort,
+  children
+}) => {
+  const sortClass = classNames(
+    'button-inline',
+    { 'button-active': sortKey === activateSortKey }
+  );
+
+  return(
+    <Button
+      onClick={() => onSort(sortKey)}
+      className={sortClass}
+    >
+      {children}
+    </Button>
+  );
+}
+
+const Table = ({
+  list,
+  sortKey,
+  isSortReverese,
+  onSort,
+  onDismiss,
+}) => {
   const largeColumn = {
     width: '40%',
   };
@@ -256,17 +291,56 @@ const Table = ({list, onDismiss}) => {
     width: '10%',
   };
 
+  const sortedList = SORTS[sortKey](list);
+  const reverseSortedList = isSortReverese
+    ? sortedList.reverse()
+    : sortedList;
+
   return (
     <div>
       <div className="table">
         <div className="table-header">
-          <span style={{ width: '40%' }}>Article</span>
-          <span style={midColumn}>Author</span>
-          <span style={smallColumn}>Number of comments</span>
-          <span style={smallColumn}>Points</span>
-          <span style={smallColumn}></span>
+          <span style={{ width: '40%' }}>
+            <Sort
+              sortKey={'TITLE'}
+              onSort={onSort}
+              activateSortKey={sortKey}
+            >
+              Article
+            </Sort>
+          </span>
+          <span style={midColumn}>
+            <Sort
+              sortKey={'AUTHOR'}
+              onSort={onSort}
+              activateSortKey={sortKey}
+            >
+              Author
+            </Sort>
+          </span>
+          <span style={smallColumn}>
+            <Sort
+              sortKey={'COMMENTS'}
+              onSort={onSort}
+              activateSortKey={sortKey}
+            >
+              Number of comments
+            </Sort>
+          </span>
+          <span style={smallColumn}>
+            <Sort
+              sortKey={'POINTS'}
+              onSort={onSort}
+              activateSortKey={sortKey}
+            >
+              Points
+            </Sort>
+          </span>
+          <span style={smallColumn}>
+            Archive
+          </span>
         </div>
-        {list.map(item =>
+        {reverseSortedList.map(item =>
           <div key={item.objectID} className="table-row">
             <span style={{ width: '40%' }}>
               <a href={item.url}>{item.title}</a>
@@ -304,7 +378,7 @@ const EmptyMessage = () =>
   <div></div>
 
 const withLoading = (Component) => ({ isLoading, ...rest }) => {
-  console.log('THIS FUNCTION IS RUNNNING');
+  console.log('withLoading is running');
   return (
     isLoading
       ? <Loading />

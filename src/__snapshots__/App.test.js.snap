@@ -79,7 +79,13 @@ exports[`App has a valid snapshot 1`] = `
             }
           }
         >
-          Article
+          <button
+            className="button-inline"
+            onClick={[Function]}
+            type="button"
+          >
+            Article
+          </button>
         </span>
         <span
           style={
@@ -88,7 +94,13 @@ exports[`App has a valid snapshot 1`] = `
             }
           }
         >
-          Author
+          <button
+            className="button-inline"
+            onClick={[Function]}
+            type="button"
+          >
+            Author
+          </button>
         </span>
         <span
           style={
@@ -97,7 +109,13 @@ exports[`App has a valid snapshot 1`] = `
             }
           }
         >
-          Number of comments
+          <button
+            className="button-inline"
+            onClick={[Function]}
+            type="button"
+          >
+            Number of comments
+          </button>
         </span>
         <span
           style={
@@ -106,7 +124,13 @@ exports[`App has a valid snapshot 1`] = `
             }
           }
         >
-          Points
+          <button
+            className="button-inline"
+            onClick={[Function]}
+            type="button"
+          >
+            Points
+          </button>
         </span>
         <span
           style={
@@ -114,7 +138,9 @@ exports[`App has a valid snapshot 1`] = `
               "width": "10%",
             }
           }
-        />
+        >
+          Archive
+        </span>
       </div>
     </div>
   </div>
@@ -163,7 +189,13 @@ exports[`Table has a valid snapshot 1`] = `
           }
         }
       >
-        Article
+        <button
+          className="button-inline"
+          onClick={[Function]}
+          type="button"
+        >
+          Article
+        </button>
       </span>
       <span
         style={
@@ -172,7 +204,13 @@ exports[`Table has a valid snapshot 1`] = `
           }
         }
       >
-        Author
+        <button
+          className="button-inline"
+          onClick={[Function]}
+          type="button"
+        >
+          Author
+        </button>
       </span>
       <span
         style={
@@ -181,7 +219,13 @@ exports[`Table has a valid snapshot 1`] = `
           }
         }
       >
-        Number of comments
+        <button
+          className="button-inline"
+          onClick={[Function]}
+          type="button"
+        >
+          Number of comments
+        </button>
       </span>
       <span
         style={
@@ -190,7 +234,13 @@ exports[`Table has a valid snapshot 1`] = `
           }
         }
       >
-        Points
+        <button
+          className="button-inline"
+          onClick={[Function]}
+          type="button"
+        >
+          Points
+        </button>
       </span>
       <span
         style={
@@ -198,7 +248,9 @@ exports[`Table has a valid snapshot 1`] = `
             "width": "10%",
           }
         }
-      />
+      >
+        Archive
+      </span>
     </div>
     <div
       className="table-row"
