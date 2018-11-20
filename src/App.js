@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { compose } from 'recompose';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '20';
@@ -208,31 +209,84 @@ class App extends Component {
             onSubmit={this.onSearchSubmit}
             buttonName="Press here to search"
           >
-          {
-            isLoading
-            ? <Loading />
-            : <Button
+            <ButtonWithConditionalRenderings
+              isLoading={isLoading}
               onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
+              error={error}
             >
               More
-            </Button>
-          }
+            </ButtonWithConditionalRenderings>
           </Search>
         </div>
         {responseMessage}
-        { error
-          ? <div className="interactions table-empty">
-            <h2>Something went wrong!</h2>
-          </div>
-          /* If results is null then list will be an empty array, thus table displays nothing */
-          : <Table
-            list={list}
-            onDismiss={this.onDismiss}
-          />
-        }
+        <TableWithError
+          list={list}
+          onDismiss={this.onDismiss}
+          error={error}
+        >
+        </TableWithError>
       </div>
     );
   }
+}
+
+const Button = ({
+  onClick,
+  className,
+  children
+}) =>
+  <button
+    onClick={onClick}
+    className={className}
+    type="button"
+  >
+    {children}
+  </button>
+
+const Table = ({list, onDismiss}) => {
+  const largeColumn = {
+    width: '40%',
+  };
+
+  const midColumn = {
+    width: '30%',
+  };
+
+  const smallColumn = {
+    width: '10%',
+  };
+
+  return (
+    <div>
+      <div className="table">
+        <div className="table-header">
+          <span style={{ width: '40%' }}>Article</span>
+          <span style={midColumn}>Author</span>
+          <span style={smallColumn}>Number of comments</span>
+          <span style={smallColumn}>Points</span>
+          <span style={smallColumn}></span>
+        </div>
+        {list.map(item =>
+          <div key={item.objectID} className="table-row">
+            <span style={{ width: '40%' }}>
+              <a href={item.url}>{item.title}</a>
+            </span>
+            <span style={midColumn}>{item.author}</span>
+            <span style={smallColumn}>{item.num_comments}</span>
+            <span style={smallColumn}>{item.points}</span>
+            <span style={smallColumn}>
+              <Button
+                onClick={() => onDismiss(item.objectID)}
+                className="button-inline"
+              >
+                DISMISS
+              </Button>
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 const Loading = () =>
@@ -240,6 +294,40 @@ const Loading = () =>
     Loading
     <FontAwesomeIcon icon={faSpinner} style={{marginLeft: '20px'}}/>
   </div>
+
+const ErrorMessage = () =>
+  <div className="interactions table-empty">
+    <h2>Something went wrong!</h2>
+  </div>
+
+const EmptyMessage = () =>
+  <div></div>
+
+const withLoading = (Component) => ({ isLoading, ...rest }) => {
+  console.log('THIS FUNCTION IS RUNNNING');
+  return (
+    isLoading
+      ? <Loading />
+      : <Component { ...rest } />
+  );
+}
+
+const withError = (EitherComponent) => (Component) => ({ error, ...rest }) => {
+  return (
+    error
+      ? <EitherComponent />
+      : <Component { ...rest } />
+  );
+}
+
+const withConditionalRenderings = compose (
+  withError(EmptyMessage),
+  withLoading
+);
+
+const ButtonWithConditionalRenderings = withConditionalRenderings(Button);
+
+const TableWithError = (withError(ErrorMessage))(Table);
 
 //  The class component version
 //  We want to use the class component instead of the functional stateless one because
@@ -291,65 +379,6 @@ const Search = ({ value, onChange, onSubmit, buttonName, children }) =>
       {children}
     </form>
 */
-
-const Table = ({list, onDismiss}) => {
-  const largeColumn = {
-    width: '40%',
-  };
-
-  const midColumn = {
-    width: '30%',
-  };
-
-  const smallColumn = {
-    width: '10%',
-  };
-
-  return (
-    <div>
-      <div className="table">
-        <div className="table-header">
-          <span style={{ width: '40%' }}>Article</span>
-          <span style={midColumn}>Author</span>
-          <span style={smallColumn}>Number of comments</span>
-          <span style={smallColumn}>Points</span>
-          <span style={smallColumn}></span>
-        </div>
-        {list.map(item =>
-          <div key={item.objectID} className="table-row">
-            <span style={{ width: '40%' }}>
-              <a href={item.url}>{item.title}</a>
-            </span>
-            <span style={midColumn}>{item.author}</span>
-            <span style={smallColumn}>{item.num_comments}</span>
-            <span style={smallColumn}>{item.points}</span>
-            <span style={smallColumn}>
-              <Button
-                onClick={() => onDismiss(item.objectID)}
-                className="button-inline"
-              >
-                DISMISS
-              </Button>
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-const Button = ({
-  onClick,
-  className,
-  children
-}) =>
-  <button
-    onClick={onClick}
-    className={className}
-    type="button"
-  >
-    {children}
-  </button>
 
 Search.propTypes = {
   value: PropTypes.string,
