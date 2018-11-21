@@ -110,3 +110,19 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
     - validate the type of data, assign default value for data
     - use PropTypes, Typescript and Flow
   - React Developer Tools (***HELPFUL***)
+
+# There are still many features we can implement and improve in our React app, ADVANCED ONES
+
+## Fifth chapter: Building extras
+
+  - Focus on search field, using the `ref` attribute to trace the `input`'s DOM node that we use later
+  
+  - Loading indicator (by adding an `isLoad` state)
+  
+  - Higher-order components
+    - They receive components as parameters and return a component that has been enhanced and refined
+    - Example: `More` button --`withLoading`--> decides to indicate `Loading` or `More`
+               `Table` --`withEmpty`--> decides to show alert message of empty data or `Table`
+               `Table` --`withNull`--> decides to show nothing (no table available) or `Table`
+           
+  - Sort output results by clicking the header, click twice will show reverse result list ( we use **Lodash & classnames APIs** for this )
