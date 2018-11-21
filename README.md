@@ -84,3 +84,29 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
   - ternary operator
 
 ### Something helpful that I should include in my program more often: ***ERROR HANDLING/BOUNDARIES***
+
+## Fourth chapter: Testing my app
+
+### Since we have reusable components, we can split and organise the components into seperate files
+
+- The folder structure will look like: 
+  - `src/components/App`, `src/components/Button`,... each has its public interface, which is `index.js` (and also `test.js` & `index.css`)
+  - `index` file imports and exports all the components which its type generalised by Button, e.g. SubmitButton, SaveButton, CancelButton.
+  - `src/components/constants/index.js`
+
+- Note `export` & `export default`
+
+### Testing!
+
+- There are 3 layers that make up the testing pyramid:
+  - Unit test: one component or function
+  - Integration: two or more components combined together and perform and be tested as a single entity
+  - End-to-end: simulation of real-life scenario
+  
+- **In React:** Component test = Unit test + Snapshot test
+  - Unit: (use Enzyme) assert, manipulate & traverse React components (**play with the component state, methods**)
+  - Snapshot: (use Jest) make a snapshot of your rendered component and compare it against future snapshots
+  - ***Component Interface - another method to catch errors***
+    - validate the type of data, assign default value for data
+    - use PropTypes, Typescript and Flow
+  - React Developer Tools (***HELPFUL***)
