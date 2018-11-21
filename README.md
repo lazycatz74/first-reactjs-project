@@ -121,8 +121,9 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
   
   - Higher-order components
     - They receive components as parameters and return a component that has been enhanced and refined
-    - Example: `More` button --`withLoading`--> decides to indicate `Loading` or `More`
-               `Table` --`withEmpty`--> decides to show alert message of empty data or `Table`
-               `Table` --`withNull`--> decides to show nothing (no table available) or `Table`
+    - Example: 
+      - `More` button --`withLoading`--> decides to indicate `Loading` or `More`
+      - `Table` --`withEmpty`--> decides to show alert message of empty data or `Table`
+      - `Table` --`withNull`--> decides to show nothing (no table available) or `Table`
            
   - Sort output results by clicking the header, click twice will show reverse result list ( we use **Lodash & classnames APIs** for this )
