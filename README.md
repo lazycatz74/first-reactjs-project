@@ -84,3 +84,46 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
   - ternary operator
 
 ### Something helpful that I should include in my program more often: ***ERROR HANDLING/BOUNDARIES***
+
+## Fourth chapter: Testing my app
+
+### Since we have reusable components, we can split and organise the components into seperate files
+
+- The folder structure will look like: 
+  - `src/components/App`, `src/components/Button`,... each has its public interface, which is `index.js` (and also `test.js` & `index.css`)
+  - `index` file imports and exports all the components which its type generalised by Button, e.g. SubmitButton, SaveButton, CancelButton.
+  - `src/components/constants/index.js`
+
+- Note `export` & `export default`
+
+### Testing!
+
+- There are 3 layers that make up the testing pyramid:
+  - Unit test: one component or function
+  - Integration: two or more components combined together and perform and be tested as a single entity
+  - End-to-end: simulation of real-life scenario
+  
+- **In React:** Component test = Unit test + Snapshot test
+  - Unit: (use Enzyme) assert, manipulate & traverse React components (**play with the component state, methods**)
+  - Snapshot: (use Jest) make a snapshot of your rendered component and compare it against future snapshots
+  - ***Component Interface - another method to catch errors***
+    - validate the type of data, assign default value for data
+    - use PropTypes, Typescript and Flow
+  - React Developer Tools (***HELPFUL***)
+
+# There are still many features we can implement and improve in our React app, ADVANCED ONES
+
+## Fifth chapter: Building extras
+
+  - Focus on search field, using the `ref` attribute to trace the `input`'s DOM node that we use later
+  
+  - Loading indicator (by adding an `isLoad` state)
+  
+  - Higher-order components
+    - They receive components as parameters and return a component that has been enhanced and refined
+    - Example: 
+      - `More` button --`withLoading`--> decides to indicate `Loading` or `More`
+      - `Table` --`withEmpty`--> decides to show alert message of empty data or `Table`
+      - `Table` --`withNull`--> decides to show nothing (no table available) or `Table`
+           
+  - Sort output results by clicking the header, click twice will show reverse result list ( we use **Lodash & classnames APIs** for this )
