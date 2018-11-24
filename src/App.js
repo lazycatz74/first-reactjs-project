@@ -31,6 +31,33 @@ const creator = {
   lastName: 'Vuong'
 }
 
+const updateSearchTopStoriesState = (hits, page) => prevState => {
+  const { searchKey, results } = prevState;
+
+  //  If the result map is not null and there exists the older data of the searchKey
+  const oldHits = results && results[searchKey]
+    ? results[searchKey].hits
+    : [];
+
+  //  Add new hits if we are searching for more results of the same term
+  const updatedHits = [
+    ...oldHits,
+    ...hits
+  ];
+
+  //  Update the value of the key in the results map
+  console.log('Cache data into results');
+  return {
+      results: {
+        ...results,
+        [searchKey]: { hits: updatedHits, page }
+      },
+      isLoading: false
+  };
+
+  console.log(`Showing results til page ${results[searchKey].page}, total results: ${results[searchKey].hits.length}`);
+};
+
 class App extends Component {
   _isMounted = false;
 
@@ -65,30 +92,8 @@ class App extends Component {
 
   setSearchTopStories(result) {
     const { hits, page } = result;
-    const { searchKey, results } = this.state;
 
-    //  If the result map is not null and there exists the older data of the searchKey
-    const oldHits = results && results[searchKey]
-      ? results[searchKey].hits
-      : [];
-
-    //  Add new hits if we are searching for more results of the same term
-    const updatedHits = [
-      ...oldHits,
-      ...hits
-    ];
-
-    //  Update the value of the key in the results map
-    console.log('Cache data into results');
-    this.setState({
-        results: {
-          ...results,
-          [searchKey]: { hits: updatedHits, page }
-        },
-        isLoading: false
-    });
-
-    console.log(`Showing results til page ${this.state.results[searchKey].page}, total results: ${this.state.results[searchKey].hits.length}`);
+    this.setState(updateSearchTopStoriesState(hits, page));
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
@@ -500,4 +505,5 @@ export {
   Button,
   Search,
   Table,
+  updateSearchTopStoriesState,
 };
